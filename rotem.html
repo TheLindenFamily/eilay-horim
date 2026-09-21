@@ -215,7 +215,7 @@ footer.credit{text-align:center;color:var(--sub);font-size:.85rem;margin-top:30p
 (function(){
 "use strict";
 
-var ENDPOINT = "https://script.google.com/macros/s/AKfycbyhgDINvRoUnbTxGYtNagtsgP7xRSUD7j4wQmVItBljqK4d2Vr6rOclbGx_XnNVLdfR2g/exec";
+var ENDPOINT = "https://script.google.com/macros/s/AKfycbwApZWoX2_SmApDIWY-toPVfPb6mvciasVsO_nYFaof7QYg1ccJB7hRnBH9ts-3KnG2IQ/exec";
 var FORM_NAME = "שאלון התפתחות להורים - עילי זוסמן";
 var PARENT = "רותם";
 var STORE_KEY = "linden_eilay_v5_rotem";
@@ -485,7 +485,11 @@ function refresh(showErrors){
   return {done:done,total:total,missing:missing};
 }
 
-function keyFor(sec, item){ return sec.title.split(" · ")[0] + " | " + item.t; }
+var KEY_SAME = {"תאר מקרה שבו ילד סירב לו או לא רצה לשחק. מה עילי עשה מיד אחר כך, ומה קרה בהמשך?": "תארי מקרה שבו ילד סירב לו או לא רצה לשחק. מה עילי עשה מיד אחר כך, ומה קרה בהמשך?", "האם יש ילד אחד שאיתו עילי נראה אחרת? תאר מה משתנה בו ליד אותו ילד.": "האם יש ילד אחד שאיתו עילי נראה אחרת? תארי מה משתנה בו ליד אותו ילד.", "במה עילי הכי גאה בעצמו? אם אפשר, כתוב את המילים שלו.": "במה עילי הכי גאה בעצמו? אם אפשר, כתבי את המילים שלו."};
+function keyFor(sec, item){
+  var t = KEY_SAME[item.t] || item.t;
+  return sec.title.split(" · ")[0] + " | " + t;
+}
 
 function collect(){
   var out = {};
@@ -579,10 +583,7 @@ document.getElementById("send").addEventListener("click", function(){
   }
   btn.disabled = true; btn.textContent = "שולח…";
   var d = collect();
-  var body = new URLSearchParams();
-  Object.keys(d).forEach(function(k){ body.append(k, d[k] || ""); });
-  body.append("payload", JSON.stringify(d));
-  fetch(ENDPOINT, { method:"POST", mode:"no-cors", body: body })
+  fetch(ENDPOINT, { method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(d) })
     .then(function(){
       document.getElementById("overlay").classList.add("show");
       try { localStorage.removeItem(STORE_KEY); } catch(e){}
